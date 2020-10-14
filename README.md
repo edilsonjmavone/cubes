@@ -6,4 +6,4 @@ https://github.com/EdilsoJMavone
 - [x] Aprender a usar branch e checkout
 - [x] merge branch`s para juntar a uma a outra
 - [x] git show mostra o ponto da historia atual
-- [] Aprender a subir o projecto para a nuvem
+- [x] Aprender a subir o projecto para a nuvem
