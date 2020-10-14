@@ -1,4 +1,4 @@
-# git gtihub
+# Meu primerio push
 - Meu github
 https://github.com/EdilsoJMavone
 ## Aprendizado
