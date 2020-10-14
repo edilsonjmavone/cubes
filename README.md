@@ -2,4 +2,4 @@
 - Meu github
 https://github.com/EdilsoJMavone
 ## Aprendizado
-- [] Entender como funciona o versionamento
+- [x] Entender como funciona o versionamento
