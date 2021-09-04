@@ -1,6 +1,5 @@
 # Meu primerio push
-- Meu github
-https://github.com/EdilsoJMavone
+
 ## Aprendizado
 - [x] Entender como funciona o versionamento
 - [x] Aprender a usar branch e checkout
