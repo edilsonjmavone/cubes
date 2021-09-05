@@ -1,3 +1,2 @@
-const url = window.location.href
-const socket = io(url)
-
+const url = window.location.href;
+//const socket = io(url);
