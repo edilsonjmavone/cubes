@@ -1,4 +1,4 @@
-console.log("cubes project");
+console.log("cubes script ready");
 const screen = document.getElementById("screen");
 const context = screen.getContext("2d");
 let idList = 1;
@@ -6,14 +6,45 @@ let conter = document.getElementById("cont");
 let fruitsCont = 0;
 
 const game = {
-  players: {
-    player1: { x: 1, y: 3, color: "black" }
-  },
-  fruits: {
-    fruit1: { x: 5, y: 7 }
-  }
+  players: [],
+  fruits: []
 };
 
+const url = window.location.href;
+const socket = io(url);
+
+socket.on("connect", () => {
+  console.log("Connected to the server");
+});
+
+socket.on("updateState", data => {
+  upLocalState(data);
+});
+
+socket.on("newPlayer", data => {
+  upLocalState(data);
+  console.log(`game state loaded ${data.players[0]}`);
+  renderGame();
+});
+
+function upLocalState(data) {
+  game.players = data.players;
+  game.fruits = data.fruits;
+}
+
+function emitMove(x, y, id) {
+  socket.emit("movePlayer", x, y, id);
+}
+
+function findMe(yourId) {
+  for (let index = 0; index < game.players.length; index++) {
+    const element = game.players[index];
+    if (element.id === yourId) {
+      return index;
+    }
+  }
+}
+//local code
 document.addEventListener("keydown", inputMoves);
 function inputMoves(event) {
   const keyPressed = event.key;
@@ -24,68 +55,41 @@ function inputMoves(event) {
       //console.log('up')
       if (player.y - 1 >= 0) {
         player.y -= 1;
+        emitMove(player.x, player.y, socket.id);
       }
     },
     ArrowDown(player) {
       //console.log('down')
       if (player.y + 1 < screen.height) {
         player.y += 1;
+        emitMove(player.x, player.y, socket.id);
       }
     },
     ArrowLeft(player) {
       //console.log('left')
       if (player.x - 1 >= 0) {
         player.x -= 1;
+        emitMove(player.x, player.y, socket.id);
       }
     },
     ArrowRight(player) {
       //console.log('right')
       if (player.x + 1 < screen.width) {
         player.x += 1;
+        emitMove(player.x, player.y, socket.id);
       }
     }
   };
 
-  const player = game.players["player1"];
+  const player = game.players[findMe(socket.id)];
   const moveCall = readMoves[keyPressed];
   if (moveCall) {
     moveCall(player);
-    colide();
-  }
-  // local code
-  function colide() {
-    for (const fruitId in game.fruits) {
-      const fruitstt = game.fruits[fruitId];
-      if (fruitstt.y == player.y && fruitstt.x == player.x) {
-        console.log(`player1 colide ${fruitId}`);
-        deleteObjs(fruitId);
-      }
-    }
-  }
-}
-// server code (maybe)
-function deleteObjs(objId) {
-  delete game.fruits[objId];
-  fruitsCont += 1;
-  addPoints();
-  console.log(`object deleted`);
-
-  createObj();
-  //server code
-  function createObj() {
-    game.fruits["fruit" + idList] = { x: randomNum(29), y: randomNum(19) };
-
-    console.log("new fruit in the game");
-  }
-  // local code
-  function addPoints() {
-    conter.innerText = `Fruits: ${fruitsCont}`;
   }
 }
 
-//server code
-function randomNum(e) {
-  return Math.floor(Math.random() * e + 1);
+function addPoints() {
+  conter.innerText = `Fruits: ${fruitsCont}`;
 }
 
 // local code
@@ -94,17 +98,14 @@ function renderGame() {
   context.fillStyle = "white";
   context.clearRect(0, 0, screen.width, screen.height);
 
-  for (const playerId in game.players) {
-    const player = game.players[playerId];
+  game.players.forEach(player => {
     context.fillStyle = player.color;
     context.fillRect(player.x, player.y, 1, 1);
-  }
-
-  for (const fruitId in game.fruits) {
-    const fruit = game.fruits[fruitId];
+  });
+  game.fruits.forEach(fruit => {
     context.fillStyle = "green";
     context.fillRect(fruit.x, fruit.y, 1, 1);
-  }
+  });
 
   requestAnimationFrame(renderGame);
 }

@@ -4,9 +4,8 @@
   "description": "## Aprendizado - [x] Entender como funciona o versionamento - [x] Aprender a usar branch e checkout - [x] merge branch`s para juntar a uma a outra - [x] git show mostra o ponto da historia atual - [x] Aprender a subir o projecto para a nuvem",
   "main": "cubes.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node /build/app.js",
-    "dev":"ts-node-dev --transpile-only src/server.ts"
+    "dev": "ts-node-dev --transpile-only src/server.ts"
   },
   "repository": {
     "type": "git",
