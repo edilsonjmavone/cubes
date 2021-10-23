@@ -10,13 +10,14 @@ const port = process.env.PORT || 3333;
 const server = http.createServer(app);
 const io = new socketio.Server(server);
 const gameController = gameState;
+gameController.initGame();
 app.use(express.static(path.join(__dirname, "./public/")));
 
-gameController.addPlayer("socket.id");
 // io events
 
 io.on("connection", (socket: any) => {
   console.log(gameController.addPlayer(socket.id));
+  sendUpdate();
 
   const data = {
     players: gameController.players,
@@ -25,19 +26,31 @@ io.on("connection", (socket: any) => {
 
   socket.emit("newPlayer", data);
 
-  function move(x: number, y: number, idx: any) {
-    gameController.players[idx].x = x;
-    gameController.players[idx].y = y;
-    const data = {
+  socket.on("movePlayer", (xPos: number, yPos: number, id: string) => {
+    console.log(
+      `===================================
+      \nPlayer with ID"${id}" 
+      moving to X:${xPos} and Y:${yPos} \n ====================================`
+    );
+    gameController.move(xPos, yPos, id);
+    sendUpdate();
+  });
+
+  socket.on("disconnect", () => {
+    gameController.removePlayer(
+      gameController.findObj(socket.id, gameController.players)
+    );
+    sendUpdate();
+  });
+
+  function sendUpdate() {
+    const d = {
       players: gameController.players,
       fruits: gameController.fruits
     };
-    socket.broadcast.emit("updateState", data);
+    console.log(`se${d.players[0]}, ${d.fruits} `);
+    socket.broadcast.emit("updateState", d);
   }
-
-  socket.on("movePlayer", (xPos: number, yPos: number, id: string) => {
-    move(xPos, yPos, gameController.findPlayer(id));
-  });
 });
 server.listen(port, () => {
   console.log(`listening in ${port} \n}`);

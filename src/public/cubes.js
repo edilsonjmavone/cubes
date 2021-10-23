@@ -33,13 +33,14 @@ function upLocalState(data) {
 }
 
 function emitMove(x, y, id) {
+  console.log(`'emit move_func log: ${id} `);
   socket.emit("movePlayer", x, y, id);
 }
 
 function findMe(yourId) {
   for (let index = 0; index < game.players.length; index++) {
     const element = game.players[index];
-    if (element.id === yourId) {
+    if (element.id == yourId) {
       return index;
     }
   }
@@ -99,7 +100,11 @@ function renderGame() {
   context.clearRect(0, 0, screen.width, screen.height);
 
   game.players.forEach(player => {
-    context.fillStyle = player.color;
+    if (player.id == socket.id) {
+      context.fillStyle = "black";
+    } else {
+      context.fillStyle = player.color;
+    }
     context.fillRect(player.x, player.y, 1, 1);
   });
   game.fruits.forEach(fruit => {
