@@ -26,20 +26,24 @@ io.on("connection", (socket: any) => {
 
   socket.emit("newPlayer", data);
 
+  socket.on("update", sendUpdate);
+
   socket.on("movePlayer", (xPos: number, yPos: number, id: string) => {
+    console.clear();
     console.log(
-      `===================================
-      \nPlayer with ID"${id}" 
-      moving to X:${xPos} and Y:${yPos} \n ====================================`
+      `
+      <===================================>
+      \n Player with ID"${id}" 
+       moving to X:${xPos} and Y:${yPos} \n
+      <===================================>
+      `
     );
     gameController.move(xPos, yPos, id);
     sendUpdate();
   });
 
   socket.on("disconnect", () => {
-    gameController.removePlayer(
-      gameController.findObj(socket.id, gameController.players)
-    );
+    gameController.removePlayer(socket.id);
     sendUpdate();
   });
 
@@ -48,7 +52,7 @@ io.on("connection", (socket: any) => {
       players: gameController.players,
       fruits: gameController.fruits
     };
-    console.log(`se${d.players[0]}, ${d.fruits} `);
+
     socket.broadcast.emit("updateState", d);
   }
 });

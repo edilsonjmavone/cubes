@@ -6,12 +6,14 @@ let conter = document.getElementById("cont");
 let fruitsCont = 0;
 
 const game = {
-  players: [],
-  fruits: []
+  players: {},
+  fruits: {}
 };
 
 const url = window.location.href;
 const socket = io(url);
+
+// socket events handlesrs/emmiters
 
 socket.on("connect", () => {
   console.log("Connected to the server");
@@ -19,6 +21,7 @@ socket.on("connect", () => {
 
 socket.on("updateState", data => {
   upLocalState(data);
+  console.warn(` state updated${data}`);
 });
 
 socket.on("newPlayer", data => {
@@ -37,14 +40,15 @@ function emitMove(x, y, id) {
   socket.emit("movePlayer", x, y, id);
 }
 
-function findMe(yourId) {
-  for (let index = 0; index < game.players.length; index++) {
-    const element = game.players[index];
-    if (element.id == yourId) {
-      return index;
-    }
-  }
-}
+// function findMe(yourId) {
+//   for (let index = 0; index < game.players.length; index++) {
+//     const element = game.players[index];
+//     if (element.id == yourId) {
+//       return index;
+//     }
+//   }
+// }
+
 //local code
 document.addEventListener("keydown", inputMoves);
 function inputMoves(event) {
@@ -82,7 +86,7 @@ function inputMoves(event) {
     }
   };
 
-  const player = game.players[findMe(socket.id)];
+  const player = game.players[socket.id];
   const moveCall = readMoves[keyPressed];
   if (moveCall) {
     moveCall(player);
@@ -94,23 +98,39 @@ function addPoints() {
 }
 
 // local code
-renderGame();
+//renderGame(); "why am i even calling this here?"
 function renderGame() {
   context.fillStyle = "white";
   context.clearRect(0, 0, screen.width, screen.height);
 
-  game.players.forEach(player => {
-    if (player.id == socket.id) {
+  for (const playerID in game.players) {
+    const player = game.players[playerID];
+
+    if (playerID == socket.id) {
       context.fillStyle = "black";
     } else {
       context.fillStyle = player.color;
     }
     context.fillRect(player.x, player.y, 1, 1);
-  });
-  game.fruits.forEach(fruit => {
+  }
+
+  // game.players.forEach(player => {
+  //   if (player.id == socket.id) {
+  //     context.fillStyle = "black";
+  //   } else {
+  //     context.fillStyle = player.color;
+  //   }
+  //   context.fillRect(player.x, player.y, 1, 1);
+  // });
+  for (const fruitID in game.fruits) {
+    const fruit = game.fruits[fruitID];
     context.fillStyle = "green";
     context.fillRect(fruit.x, fruit.y, 1, 1);
-  });
-
+  }
+  // game.fruits.forEach(fruit => {
+  //   context.fillStyle = "green";
+  //   context.fillRect(fruit.x, fruit.y, 1, 1);
+  // });
+  socket.emit("update")
   requestAnimationFrame(renderGame);
 }
